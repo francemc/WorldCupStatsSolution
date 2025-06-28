@@ -85,7 +85,7 @@ namespace WorldCupStats.WpfApp.ViewModels
            
 
              OpenSettingsCommand = new RelayCommand(OpenSettings);
-          //  ViewTeamDetailsCommand = new RelayCommand<Team>(ViewTeamDetails);
+          //5  ViewTeamDetailsCommand = new RelayCommand<Team>(ViewTeamDetails);
           
             // Load initial preferences
             PreferencesManager.TryLoadPreferences(out _, out var genre);

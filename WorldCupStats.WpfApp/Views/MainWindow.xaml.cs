@@ -21,8 +21,8 @@ namespace WorldCupStats.WpfApp.Views
     {
         public MainWindow()
         {
-            InitializeComponent();
-
+            
+            InitializeComponent(); 
         }
 
 

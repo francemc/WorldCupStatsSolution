@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WorldCupStats.WpfApp.ViewModels;
 
 namespace WorldCupStats.WpfApp.Views
 {
@@ -22,6 +23,8 @@ namespace WorldCupStats.WpfApp.Views
         public StartupWindow()
         {
             InitializeComponent();
+            DataContext = new StartupViewModel(); // ← ESTA LÍNEA ES CLAVE
         }
     }
+    
 }

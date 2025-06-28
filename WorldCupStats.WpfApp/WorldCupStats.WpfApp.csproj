@@ -12,4 +12,10 @@
     <ProjectReference Include="..\WorldCupStats.Data\WorldCupStats.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Views\MainWindow.xaml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Page>
+  </ItemGroup>
+
 </Project>
