@@ -1,0 +1,18 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Team Window Animation -->
+    <Storyboard x:Key="TeamWindowOpenAnimation">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
+        <ThicknessAnimation Storyboard.TargetProperty="Margin" 
+                            From="0,20,0,0" To="0,0,0,0" Duration="0:0:0.5"/>
+    </Storyboard>
+
+    <!-- Player Window Animation -->
+    <Storyboard x:Key="PlayerWindowOpenAnimation">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
+        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" 
+                         From="0.8" To="1" Duration="0:0:0.3"/>
+        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" 
+                         From="0.8" To="1" Duration="0:0:0.3"/>
+    </Storyboard>
+</ResourceDictionary>

@@ -1,0 +1,52 @@
+﻿<Window x:Class="WorldCupStats.WpfApp.Views.TeamViewModel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WorldCupStats.WpfApp.Views"
+        mc:Ignorable="d"
+        Title="TeamViewModel" Height="450" Width="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="{Binding Team.Country}" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="{Binding Team.FifaCode}" FontSize="18"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Games Played:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.GamesPlayed}"/>
+
+                <TextBlock Text="Wins:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.Wins}"/>
+
+                <TextBlock Text="Draws:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.Draws}"/>
+
+                <TextBlock Text="Losses:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.Losses}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Goals For:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.GoalsFor}"/>
+
+                <TextBlock Text="Goals Against:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.GoalsAgainst}"/>
+
+                <TextBlock Text="Goal Differential:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Team.GoalDifferential}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
