@@ -7,11 +7,13 @@ public static class PreferencesManager
     // Define default values here
     public static readonly string DefaultLanguage = "en";
     public static readonly Genre DefaultGenre = Genre.Men;
+    public static readonly string DefaultSize = "500,500"; 
 
-    public static bool TryLoadPreferences(out string language, out Genre genre)
+    public static bool TryLoadPreferences(out string language, out Genre genre,out string size)
     {
         language = DefaultLanguage;
         genre = DefaultGenre;
+        size = DefaultSize; 
 
         if (!File.Exists(PreferencesPath))
             return false;
@@ -21,6 +23,7 @@ public static class PreferencesManager
             string[] parts = File.ReadAllText(PreferencesPath).Split('|');
             language = parts[0];
             genre = parts[1].Equals("Women", StringComparison.OrdinalIgnoreCase) ? Genre.Women : Genre.Men;
+            if(parts.Length > 2 )  size = parts[2]; 
             return true;
         }
         catch
@@ -29,9 +32,13 @@ public static class PreferencesManager
         }
     }
 
-    public static void SavePreferences(string language, Genre genre)
+    public static void SavePreferences(string language, Genre genre, string size)
     {
         string line = $"{language}|{genre}";
+        if (size != "")
+        {
+             line += $"|{size}";
+        }
         File.WriteAllText(PreferencesPath, line);
     }
 }

@@ -15,15 +15,22 @@ using WorldCupStats.WpfApp.ViewModels;
 
 namespace WorldCupStats.WpfApp.Views
 {
+
     /// <summary>
     /// Lógica de interacción para StartupWindow.xaml
     /// </summary>
+    /// 
     public partial class StartupWindow : Window
     {
+        public event EventHandler<PreferencesSavedEventArgs>? PreferencesSaved;
+
         public StartupWindow()
         {
             InitializeComponent();
-            DataContext = new StartupViewModel(); // ← ESTA LÍNEA ES CLAVE
+            var vm = new StartupViewModel();
+            vm.PreferencesSaved += (s, e) => PreferencesSaved?.Invoke(this, e);
+
+            DataContext = vm;
         }
     }
     

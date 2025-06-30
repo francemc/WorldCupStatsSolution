@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WorldCupStats.Data.Models;
+using WorldCupStats.Data.Services;
 
 namespace WorldCupStats.WpfApp.Views
 {
@@ -19,12 +21,11 @@ namespace WorldCupStats.WpfApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(ApiService apiService, Genre fixedGenre)
         {
-            
-            InitializeComponent(); 
+            InitializeComponent();
+            DataContext = new MainViewModel(apiService, fixedGenre);
         }
-
-
     }
+
 }

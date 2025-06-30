@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="WorldCupStats.WpfApp.FootballFieldControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:local="clr-namespace:WorldCupStats.WpfApp"
+             Background="Transparent"
+             Width="800" Height="450">
+    <Grid>
+        <Border CornerRadius="5" Background="#3A8F3A">
+            <Grid>
+                <Image Source="/Assets/Field.jpg" Stretch="Uniform" Opacity="1"/>
+
+                <!-- Team 1 players -->
+                <ItemsControl ItemsSource="{Binding Team1Players, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="800" Height="450"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:PlayerControl/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding XPosition}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding YPosition}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
+
+                <!-- Team 2 players -->
+                <ItemsControl ItemsSource="{Binding Team2Players, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="800" Height="450"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:PlayerControl/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding XPosition}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding YPosition}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

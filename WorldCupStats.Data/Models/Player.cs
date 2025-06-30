@@ -20,5 +20,15 @@ namespace WorldCupStats.Data.Models
 
         [JsonPropertyName("captain")]
         public bool Captain { get; set; }
+        [JsonIgnore]
+        public double XPosition { get; set; }
+        [JsonIgnore]
+        public double YPosition { get; set; }
+
+        [JsonIgnore]
+        public int GoalsScored { get; set; }
+
+        [JsonIgnore]
+        public int YellowCards { get; set; }
     }
 }

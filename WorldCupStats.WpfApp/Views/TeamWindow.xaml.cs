@@ -17,9 +17,9 @@ namespace WorldCupStats.WpfApp.Views
     /// <summary>
     /// Lógica de interacción para TeamViewModel.xaml
     /// </summary>
-    public partial class TeamViewModel : Window
+    public partial class TeamWindow : Window
     {
-        public TeamViewModel()
+        public TeamWindow()
         {
             InitializeComponent();
         }

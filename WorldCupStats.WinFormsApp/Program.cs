@@ -16,7 +16,7 @@ namespace WorldCupStats.WinFormsApp
         static void Main()
         {
             // Load preferences or ask user if missing
-            if (!PreferencesManager.TryLoadPreferences(out string language, out Genre genre))
+            if (!PreferencesManager.TryLoadPreferences(out string language, out Genre genre, out _))
             {
                 using var settingsForm = new SettingsForm();
                 if (settingsForm.ShowDialog() != DialogResult.OK)
@@ -25,7 +25,7 @@ namespace WorldCupStats.WinFormsApp
                 language = settingsForm.SelectedLanguage;
                 genre = settingsForm.SelectedGenre;
 
-                PreferencesManager.SavePreferences(language, genre);
+                PreferencesManager.SavePreferences(language, genre, "");
             }
 
            

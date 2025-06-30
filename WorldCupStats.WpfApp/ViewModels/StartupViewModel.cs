@@ -16,7 +16,9 @@ namespace WorldCupStats.WpfApp.ViewModels
         public ObservableCollection<Genre> Genres { get; }
         public ObservableCollection<WindowModeOption> WindowModes { get; }
 
-        private LanguageOption _selectedLanguage;
+      
+        private LanguageOption _selectedLanguage; 
+
         public LanguageOption SelectedLanguage
         {
             get => _selectedLanguage;
@@ -63,24 +65,17 @@ namespace WorldCupStats.WpfApp.ViewModels
             SaveCommand = new RelayCommand(SaveAndContinue);
         }
 
+        // Evento que notifica que se guardaron preferencias
+        public event EventHandler<PreferencesSavedEventArgs>? PreferencesSaved;
+
         private void SaveAndContinue()
         {
-            PreferencesManager.SavePreferences(SelectedLanguage.Code, SelectedGenre);
+            PreferencesManager.SavePreferences(SelectedLanguage.Code, SelectedGenre, SelectedWindowMode.DisplayName);
 
-            Application.Current.MainWindow?.Close();
-
-            var main = new MainWindow();
-            if (SelectedWindowMode.Mode == WindowMode.Fullscreen)
-                main.WindowState = WindowState.Maximized;
-            else
-            {
-                var size = SelectedWindowMode.GetWindowSize();
-                main.Width = size.Width;
-                main.Height = size.Height;
-            }
-
-            main.Show();
+            // Lanzar evento para avisar que ya guardó preferencias
+            PreferencesSaved?.Invoke(this, new PreferencesSavedEventArgs(SelectedGenre, SelectedWindowMode.DisplayName));
         }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
