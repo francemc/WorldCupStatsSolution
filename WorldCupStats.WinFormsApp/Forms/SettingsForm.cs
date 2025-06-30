@@ -60,7 +60,7 @@ namespace WorldCupStats.WinFormsApp.Forms
             SelectedLanguage = cmbLanguage.SelectedItem.ToString() == "Croatian" ? "hr" : "en";
             try
             {
-                PreferencesManager.SavePreferences(SelectedLanguage, SelectedGenre);
+                PreferencesManager.SavePreferences(SelectedLanguage, SelectedGenre,"");
             }
             catch (Exception ex)
             {

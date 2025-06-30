@@ -12,8 +12,7 @@
     <Window.Resources>
         <conv:GenreConverter x:Key="GenreConverter" />
     </Window.Resources>
-
-    <Grid Margin="20">
+    <Grid Margin="20" FocusManager.FocusedElement="{Binding ElementName=LanguageComboBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
