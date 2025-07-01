@@ -61,7 +61,6 @@ namespace WorldCupStats.WinFormsApp.Forms
 
         private async void FavoriteForm_LoadAsync(object sender, EventArgs e)
         {
-           
             lblStatus.Visible = true;
             cmbTeams.Enabled = false;
             pnlFavoritePlayers.Enabled = false;
@@ -77,14 +76,36 @@ namespace WorldCupStats.WinFormsApp.Forms
 
                 cmbTeams.Enabled = true;
 
-                string savedTeam = LoadFavoriteTeamFromFile();
-                if (!string.IsNullOrEmpty(savedTeam))
+                if (FavoritesManager.TryLoadFavorites(out var favData))
                 {
-                    int idx = cmbTeams.Items.IndexOf(savedTeam);
-                    if (idx >= 0)
+                    if (!string.IsNullOrEmpty(favData.FavoriteTeamCode))
                     {
-                        cmbTeams.SelectedIndex = idx;
-                        await LoadPlayersForSelectedTeam();
+                        int idx = -1;
+                        for (int i = 0; i < cmbTeams.Items.Count; i++)
+                        {
+                            string item = cmbTeams.Items[i].ToString();
+                            if (item.Contains($"({favData.FavoriteTeamCode})"))
+                            {
+                                idx = i;
+                                break;
+                            }
+                        }
+
+                        if (idx >= 0)
+                        {
+                            cmbTeams.SelectedIndex = idx;
+                            await LoadPlayersForSelectedTeam();
+
+                            _favoritePlayers.Clear();
+                            foreach (var favId in favData.FavoritePlayerIds)
+                            {
+                                var player = _allPlayers.FirstOrDefault(p => p.Name == favId);
+                                if (player != null)
+                                    _favoritePlayers.Add(player);
+                            }
+
+                            PopulatePlayerPanels();
+                        }
                     }
                 }
             }
@@ -99,7 +120,6 @@ namespace WorldCupStats.WinFormsApp.Forms
         {
             if (cmbTeams.SelectedItem == null) return;
 
-            
             pnlFavoritePlayers.Enabled = false;
             pnlOtherPlayers.Enabled = false;
             btnConfirm.Enabled = false;
@@ -111,7 +131,20 @@ namespace WorldCupStats.WinFormsApp.Forms
 
                 _allPlayers = await _api.GetPlayersByTeamAsync(_genre, fifaCode);
 
-                LoadFavoritePlayersFromFile();
+                // Carga favoritos si el equipo coincide
+                _favoritePlayers.Clear();
+                if (FavoritesManager.TryLoadFavorites(out var favData))
+                {
+                    if (favData.FavoriteTeamCode == fifaCode)
+                    {
+                        foreach (var favId in favData.FavoritePlayerIds)
+                        {
+                            var player = _allPlayers.FirstOrDefault(p => p.Name == favId);
+                            if (player != null)
+                                _favoritePlayers.Add(player);
+                        }
+                    }
+                }
 
                 PopulatePlayerPanels();
 
@@ -126,6 +159,7 @@ namespace WorldCupStats.WinFormsApp.Forms
                 lblStatus.Text = "Error loading players.";
             }
         }
+
 
         private void PopulatePlayerPanels()
         {
@@ -277,7 +311,7 @@ namespace WorldCupStats.WinFormsApp.Forms
             }
         }
 
-        private async void BtnConfirm_Click(object sender, EventArgs e)
+        private void BtnConfirm_Click(object sender, EventArgs e)
         {
             if (cmbTeams.SelectedItem == null)
             {
@@ -292,51 +326,20 @@ namespace WorldCupStats.WinFormsApp.Forms
 
             ConfirmedFavoriteTeam = cmbTeams.SelectedItem.ToString();
 
-            SaveFavoriteTeamToFile(ConfirmedFavoriteTeam);
-            SaveFavoritePlayersToFile();
+            // Extrae solo el código FIFA del equipo seleccionado para guardar
+            string fifaCode = ExtractFifaCode(ConfirmedFavoriteTeam);
+
+            var favData = new FavoritesManager.FavoritesData
+            {
+                FavoriteTeamCode = fifaCode,
+                FavoritePlayerIds = _favoritePlayers.Select(p => p.Name).ToList()
+            };
+
+            FavoritesManager.SaveFavorites(favData);
 
             MessageBox.Show("Favorites saved!");
             this.Close();
         }
-
-        #region File IO Helpers
-
-        private string LoadFavoriteTeamFromFile()
-        {
-            const string path = "favorite_team.txt";
-            return File.Exists(path) ? File.ReadAllText(path) : null;
-        }
-
-        private void LoadFavoritePlayersFromFile()
-        {
-            _favoritePlayers.Clear();
-            const string path = "favorite_players.txt";
-            if (!File.Exists(path)) return;
-
-            var lines = File.ReadAllLines(path);
-            foreach (var line in lines)
-            {
-                var parts = line.Split('|');
-                if (parts.Length == 2 && int.TryParse(parts[1], out int shirtNumber))
-                {
-                    var player = _allPlayers.FirstOrDefault(p => p.Name == parts[0] && p.ShirtNumber == shirtNumber);
-                    if (player != null) _favoritePlayers.Add(player);
-                }
-            }
-        }
-
-        private void SaveFavoriteTeamToFile(string teamString)
-        {
-            File.WriteAllText("favorite_team.txt", teamString);
-        }
-
-        private void SaveFavoritePlayersToFile()
-        {
-            var lines = _favoritePlayers.Select(p => $"{p.Name}|{p.ShirtNumber}");
-            File.WriteAllLines("favorite_players.txt", lines);
-        }
-
-        #endregion
 
         private string ExtractFifaCode(string teamString)
         {

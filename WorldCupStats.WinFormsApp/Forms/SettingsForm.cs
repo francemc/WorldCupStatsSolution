@@ -14,7 +14,7 @@ namespace WorldCupStats.WinFormsApp.Forms
 {
     public partial class SettingsForm : Form
     {
-        private const string PreferencesPath = "userprefs.txt";
+       
         public Genre SelectedGenre { get; private set; }
         public string SelectedLanguage { get; private set; }
         public SettingsForm()
@@ -36,22 +36,10 @@ namespace WorldCupStats.WinFormsApp.Forms
 
         private void LoadExistingPreferences()
         {
-            if (!File.Exists(PreferencesPath)) return;
-
-            try
+            if (PreferencesManager.TryLoadPreferences(out string language, out Genre genre, out string size))
             {
-                var content = File.ReadAllText(PreferencesPath);
-                var parts = content.Split('|');
-
-                if (parts.Length == 2)
-                {
-                    cmbLanguage.SelectedItem = parts[0] == "hr" ? "Croatian" : "English";
-                    cmbChampionship.SelectedItem = parts[1];
-                }
-            }
-            catch
-            {
-                // Ignore load errors
+                cmbLanguage.SelectedItem = language == "hr" ? "Croatian" : "English";
+                cmbChampionship.SelectedItem = genre == Genre.Women ? "Women" : "Men";
             }
         }
         private void btnOk_Click_1(object sender, EventArgs e)
@@ -79,22 +67,6 @@ namespace WorldCupStats.WinFormsApp.Forms
 
         }
 
-        // Add these methods to SettingsForm.cs
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData == Keys.Enter)
-            {
-                btnOk.PerformClick();
-                return true;
-            }
-            else if (keyData == Keys.Escape)
-            {
-                btnCancel.PerformClick();
-                return true;
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
 
         private void SettingsForm_KeyDown(object sender, KeyEventArgs e)
         {

@@ -263,6 +263,30 @@ namespace WorldCupStats.Data.Services
 
             return players;
         }
+        public async Task<List<Team>> GetTeamsWithResultsAsync(Genre genre)
+        {
+            var teams = await GetTeamsAsync(genre);
+            var results = await GetTeamsResultsAsync(genre);
+
+            foreach (var team in teams)
+            {
+                var result = results.FirstOrDefault(r => r.FifaCode.Equals(team.FifaCode, StringComparison.OrdinalIgnoreCase));
+                if (result != null)
+                {
+                    team.GamesPlayed = result.GamesPlayed;
+                    team.Wins = result.Wins;
+                    team.Draws = result.Draws;
+                    team.Losses = result.Losses;
+                    team.GoalsFor = result.GoalsFor;
+                    team.GoalsAgainst = result.GoalsAgainst;
+                    team.GoalDifferential = result.GoalDifferential;
+                    team.Points = (result.Wins * 3) + (result.Draws);  // Puedes calcular los puntos si quieres
+                }
+            }
+
+            return teams;
+        }
+
 
     }
 }

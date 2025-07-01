@@ -14,9 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WorldCupStats.Data.Models;
 using WorldCupStats.WpfApp.ViewModels;
-using WorldCupStats.WpfApp.Views;
 
-namespace WorldCupStats.WpfApp
+
+namespace WorldCupStats.WpfApp.Views
 {
     /// <summary>
     /// Lógica de interacción para PlayerControl.xaml
@@ -28,27 +28,24 @@ namespace WorldCupStats.WpfApp
             InitializeComponent();
         }
 
+        public static readonly DependencyProperty ClickCommandProperty =
+        DependencyProperty.Register(
+            "ClickCommand",
+            typeof(ICommand),
+            typeof(PlayerControl));
+
+        public ICommand ClickCommand
+        {
+            get => (ICommand)GetValue(ClickCommandProperty);
+            set => SetValue(ClickCommandProperty, value);
+        }
+
         private void PlayerControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (DataContext is Player player)
+            if (DataContext is PlayerViewModel vm && ClickCommand?.CanExecute(vm) == true)
             {
-                // Aquí puedes abrir la ventana de detalles del jugador
-                var detailsWindow = new PlayerDetailsWindows();
-                // Suponiendo que tienes un ViewModel para detalles (PlayerDetailsViewModel)
-                detailsWindow.DataContext = new PlayerDetailsViewModel(
-                    player,
-                    goals: player.GoalsScored,       // Ajusta según datos disponibles
-                    yellowCards: player.YellowCards
-                );
-
-                detailsWindow.Owner = Window.GetWindow(this);
-                detailsWindow.Opacity = 0;
-                detailsWindow.Show();
-
-                var animation = new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.3));
-                detailsWindow.BeginAnimation(Window.OpacityProperty, animation);
+                ClickCommand.Execute(vm);
             }
         }
     }
-
 }

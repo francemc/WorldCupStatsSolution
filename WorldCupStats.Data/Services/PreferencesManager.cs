@@ -1,44 +1,61 @@
 ﻿using WorldCupStats.Data.Models;
-
-public static class PreferencesManager
+namespace WorldCupStats.Data.Services
 {
-    private const string PreferencesPath = "userprefs.txt";
-
-    // Define default values here
-    public static readonly string DefaultLanguage = "en";
-    public static readonly Genre DefaultGenre = Genre.Men;
-    public static readonly string DefaultSize = "500,500"; 
-
-    public static bool TryLoadPreferences(out string language, out Genre genre,out string size)
+    public static class PreferencesManager
     {
-        language = DefaultLanguage;
-        genre = DefaultGenre;
-        size = DefaultSize; 
+        private static readonly string PreferencesPath = Path.Combine(
+      Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+      "WorldCupStats",
+      "userprefs.txt");
 
-        if (!File.Exists(PreferencesPath))
-            return false;
+        // Define default values here
+        public static readonly string DefaultLanguage = "en";
+        public static readonly Genre DefaultGenre = Genre.Men;
+        public static readonly string DefaultSize = "500,500";
 
-        try
+        public static bool TryLoadPreferences(out string language, out Genre genre, out string size)
         {
-            string[] parts = File.ReadAllText(PreferencesPath).Split('|');
-            language = parts[0];
-            genre = parts[1].Equals("Women", StringComparison.OrdinalIgnoreCase) ? Genre.Women : Genre.Men;
-            if(parts.Length > 2 )  size = parts[2]; 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+            language = DefaultLanguage;
+            genre = DefaultGenre;
+            size = DefaultSize;
 
-    public static void SavePreferences(string language, Genre genre, string size)
-    {
-        string line = $"{language}|{genre}";
-        if (size != "")
-        {
-             line += $"|{size}";
+            if (!File.Exists(PreferencesPath))
+                return false;
+
+            try
+            {
+                string[] parts = File.ReadAllText(PreferencesPath).Split('|');
+                language = parts[0];
+                genre = parts[1].Equals("Women", StringComparison.OrdinalIgnoreCase) ? Genre.Women : Genre.Men;
+                if (parts.Length > 2) size = parts[2];
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
-        File.WriteAllText(PreferencesPath, line);
+
+        public static void SavePreferences(string language, Genre genre, string size)
+        {
+            string line = $"{language}|{genre}";
+            if (!string.IsNullOrEmpty(size))
+            {
+                line += $"|{size}";
+            }
+            else
+            {
+                line += "|Fullscreen";
+            }
+
+                string? directory = Path.GetDirectoryName(PreferencesPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(PreferencesPath, line);
+        }
+
     }
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using WorldCupStats.Data.Models;
 
 namespace WorldCupStats.WpfApp.ViewModels
@@ -28,7 +23,6 @@ namespace WorldCupStats.WpfApp.ViewModels
 
             Country = team.Country ?? "Unknown";
             FifaCode = team.FifaCode ?? "N/A";
-
             GamesPlayed = team.GamesPlayed ?? 0;
             Wins = team.Wins ?? 0;
             Losses = team.Losses ?? 0;
@@ -42,5 +36,4 @@ namespace WorldCupStats.WpfApp.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
-
 }

@@ -21,10 +21,10 @@ namespace WorldCupStats.WpfApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(ApiService apiService, Genre fixedGenre)
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new MainViewModel(apiService, fixedGenre);
+            DataContext = viewModel;
         }
     }
 

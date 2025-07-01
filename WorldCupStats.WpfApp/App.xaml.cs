@@ -56,8 +56,11 @@ namespace WorldCupStats.WpfApp
         {
             var httpClient = new HttpClient { BaseAddress = new Uri(_dataSourceSettings.ApiBaseUrl) };
             var apiService = new ApiService(httpClient, _dataSourceSettings);
+            var dialogService = new DialogService();
 
-            var mainWindow = new MainWindow(apiService, genre);
+            var mainViewModel = new MainViewModel(apiService, genre, dialogService);
+
+            var mainWindow = new MainWindow(mainViewModel);
 
             if (size == "Fullscreen")
                 mainWindow.WindowState = WindowState.Maximized;
