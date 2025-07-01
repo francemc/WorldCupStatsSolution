@@ -26,6 +26,21 @@ namespace WorldCupStats.WpfApp.Views
             InitializeComponent();
             DataContext = viewModel;
         }
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            // Abrir StartupWindow
+            var startupWindow = new StartupWindow();
+
+            // Suscribirse al evento PreferencesSaved para recibir configuración y aplicar cambios si quieres
+
+            startupWindow.Show();
+
+            // Cerrar esta ventana (MainWindow)
+            this.Close();
+        }
+
+        
+
     }
 
 }

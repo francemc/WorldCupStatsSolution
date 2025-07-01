@@ -9,7 +9,10 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:StartupViewModel}"
         mc:Ignorable="d"
         Title="StartupWindow" Height="450" Width="800">
-    <Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding SaveCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
+    </Window.InputBindings><Window.Resources>
         <conv:GenreConverter x:Key="GenreConverter" />
     </Window.Resources>
     <Grid Margin="20" FocusManager.FocusedElement="{Binding ElementName=LanguageComboBox}">
@@ -52,7 +55,9 @@
             </ItemsControl>
         </StackPanel>
 
-        <Button Grid.Row="5" Content="Save and Continue" Command="{Binding SaveCommand}" 
-                HorizontalAlignment="Right" Padding="20,5"/>
+        <Button Grid.Row="5" Content="Save and Continue" 
+        Command="{Binding SaveCommand}"
+        HorizontalAlignment="Right" Padding="20,5"/>
+
     </Grid>
 </Window>

@@ -33,7 +33,8 @@ namespace WorldCupStats.WpfApp
             if (!PreferencesManager.TryLoadPreferences(out string language, out Genre genre, out string size))
             {
                 _setupWindow = new StartupWindow();
-                _setupWindow.PreferencesSaved += SetupWindow_PreferencesSaved;
+                _setupWindow.PreferencesSaved += SetupWindow_PreferencesSaved; // Suscribirse aquí
+
                 _setupWindow.Show();
             }
             else
@@ -43,13 +44,18 @@ namespace WorldCupStats.WpfApp
         }
 
 
+        
         private void SetupWindow_PreferencesSaved(object? sender, PreferencesSavedEventArgs e)
         {
             _setupWindow.PreferencesSaved -= SetupWindow_PreferencesSaved;
-            OpenMainWindow(e.SelectedGenre, e.WindowSize);
-            _setupWindow.Close();
 
+            MessageBox.Show($"Abrir MainWindow con género: {e.SelectedGenre}, tamaño: {e.WindowSize}");
+
+            OpenMainWindow(e.SelectedGenre, e.WindowSize);
+            _setupWindow.MarkSaveInitiated();  // Evitar mensaje al cerrar
+            _setupWindow.Close();
         }
+
 
 
         private void OpenMainWindow(Genre genre, string size)

@@ -57,37 +57,22 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Player Position Styles -->
-        <Style TargetType="TextBlock" x:Key="GoalkeeperStyle">
-            <Setter Property="Foreground" Value="#0066CC"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="DefenderStyle">
-            <Setter Property="Foreground" Value="#009933"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="MidfielderStyle">
-            <Setter Property="Foreground" Value="#FF6600"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style TargetType="TextBlock" x:Key="ForwardStyle">
-            <Setter Property="Foreground" Value="#CC0000"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Header -->
             <RowDefinition Height="Auto"/>
-            <!-- Team Selection -->
+            <!-- Header -->
             <RowDefinition Height="*"/>
+            <!-- Team Selection -->
+            <RowDefinition Height="Auto"/>
             <!-- Football Field -->
            
         </Grid.RowDefinitions>
 
-
+        <Button Content="Settings" Grid.Row="0" HorizontalAlignment="Left" Margin="10"
+            Click="OpenSettings_Click"/>
 
 
         <!-- Team Selection Section -->
@@ -127,8 +112,19 @@
             </Border>
 
             <!-- VS Separator -->
-            <TextBlock Grid.Column="1" Text="VS" FontSize="24" FontWeight="Bold"
+            <StackPanel Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock FontSize="24" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,0" Foreground="#2A5C8F">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="FIFA {0} WORLD CUP">
+                            <Binding Path="GenreDisplayText"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Grid.Column="1" Text="VS" FontSize="24" FontWeight="Bold"
                      VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,0" Foreground="#2A5C8F"/>
+                </StackPanel>
             <StackPanel Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding MatchResult}"
                              FontSize="36" FontWeight="Bold" Foreground="Black"

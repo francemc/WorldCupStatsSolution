@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WorldCupStats.Data.Models;
 using WorldCupStats.Data.Services;
+using static WorldCupStats.Data.Services.FavoritesManager;
 
 namespace WorldCupStats.WinFormsApp.Forms
 {
@@ -48,7 +49,12 @@ namespace WorldCupStats.WinFormsApp.Forms
             SelectedLanguage = cmbLanguage.SelectedItem.ToString() == "Croatian" ? "hr" : "en";
             try
             {
-                PreferencesManager.SavePreferences(SelectedLanguage, SelectedGenre,"");
+                PreferencesManager.SavePreferences(SelectedLanguage, SelectedGenre, "");
+                if (SelectedGenre.ToString() != cmbChampionship.SelectedItem.ToString())
+                {
+                    var dat = new FavoritesData();
+                    FavoritesManager.SaveFavorites(dat);
+                }
             }
             catch (Exception ex)
             {

@@ -4,6 +4,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Player Details" Height="350" Width="500"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -12,7 +16,21 @@
 
         <Border Grid.Column="0" Width="150" Height="200" Margin="0,0,20,0"
                 BorderBrush="Gray" BorderThickness="1">
-            <Image Source="{Binding Player.ImageUrl}" Stretch="Uniform"/>
+            <Image Stretch="Uniform">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="{Binding Player.ImageUrl}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Player.ImageUrl}" Value="">
+                                <Setter Property="Source" Value="/Assest/default.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Player.ImageUrl}" Value="{x:Null}">
+                                <Setter Property="Source" Value="/Assest/default.png" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
         </Border>
 
         <StackPanel Grid.Column="1">
@@ -30,8 +48,7 @@
             <TextBlock Text="Yellow Cards:" FontWeight="Bold"/>
             <TextBlock Text="{Binding YellowCards}"/>
 
-            <TextBlock Text="Captain:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding Player.Captain}"/>
+            <TextBlock Text="Captain" FontWeight="Bold" Visibility="{Binding Player.Captain, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="#2A5C8F" />
         </StackPanel>
     </Grid>
 </Window>

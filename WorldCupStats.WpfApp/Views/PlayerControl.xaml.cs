@@ -47,5 +47,17 @@ namespace WorldCupStats.WpfApp.Views
                 ClickCommand.Execute(vm);
             }
         }
+        private void PlayerControl_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is PlayerViewModel playerViewModel)
+            {
+                var window = new PlayerWindow
+                {
+                    DataContext = playerViewModel,
+                    Owner = Application.Current.MainWindow
+                };
+                window.ShowDialog();
+            }
+        }
     }
 }

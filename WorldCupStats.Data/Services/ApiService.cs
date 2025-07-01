@@ -23,8 +23,22 @@ namespace WorldCupStats.Data.Services
            
         }
         private string GetJsonPath(string genreFolder, string filename)
-        => Path.Combine(AppContext.BaseDirectory, _settings.JsonDataPath, genreFolder, filename);
+        {
+            string currentDir = Directory.GetCurrentDirectory();
+            DirectoryInfo? dir = new DirectoryInfo(currentDir);
 
+            // Buscar la carpeta raíz de la solución (ajusta si tu estructura es distinta)
+            while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "WorldCupStats.Data")))
+            {
+                dir = dir.Parent;
+            }
+
+            if (dir == null)
+                throw new DirectoryNotFoundException("No se pudo encontrar la carpeta WorldCupStats.Data desde el directorio actual.");
+
+            string jsonFolderPath = Path.Combine(dir.FullName, @"WorldCupStats.Data\Data\Json");
+            return Path.Combine(jsonFolderPath, genreFolder, filename);
+        }
         public async Task<List<Team>> GetTeamsAsync(Genre genre)
         {
             if (_settings.UseApi)
@@ -32,7 +46,7 @@ namespace WorldCupStats.Data.Services
                 try
                 {
                     // API call
-                    var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/teams";
+                    var endpoint = $"{ BaseApiUrl}/{genre.ToString().ToLower()}/teams";
                     var response = await _httpClient.GetAsync(endpoint);
                     response.EnsureSuccessStatusCode();
 

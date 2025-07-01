@@ -17,10 +17,28 @@ using WorldCupStats.WpfApp;
 public class MainViewModel : INotifyPropertyChanged
 {
     private readonly ApiService _apiService;
-    private readonly Genre _selectedGenre;
+   
     private readonly IDialogService _dialogService;
 
-    public Genre SelectedGenre => _selectedGenre; // Expuesto como solo lectura
+    private Genre _selectedGenre;
+
+    public Genre SelectedGenre
+    {
+        get => _selectedGenre;
+        private set
+        {
+            if (_selectedGenre != value)
+            {
+                _selectedGenre = value;
+                OnPropertyChanged(nameof(SelectedGenre));
+                OnPropertyChanged(nameof(GenreDisplayText));  // Si usas un texto derivado
+            }
+        }
+    }
+
+    public string GenreDisplayText =>
+        _selectedGenre == Genre.Men ? "Men's" : "Women's";
+
 
     public ObservableCollection<Team> Teams { get; } = new ObservableCollection<Team>();
     public ObservableCollection<Team> OpponentTeams { get; } = new ObservableCollection<Team>();
@@ -223,7 +241,6 @@ public class MainViewModel : INotifyPropertyChanged
         SelectedTeam1 = Teams[0];
     }
 
-
     private async void LoadOpponentsAsync()
     {
         OpponentTeams.Clear();
@@ -244,7 +261,6 @@ public class MainViewModel : INotifyPropertyChanged
         if (OpponentTeams.Count > 0)
             SelectedTeam2 = OpponentTeams[0];
     }
-
     private async void LoadMatchResultAsync()
     {
         if (SelectedTeam1 == null || SelectedTeam2 == null) return;
@@ -276,8 +292,6 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
     }
-
-
     private void PositionPlayers(List<Player> players, ObservableCollection<PlayerViewModel> collection, bool isLeftSide, Match match)
     {
         int maxX = 800; // ancho del campo (ajústalo a tu layout)
@@ -319,8 +333,6 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-
-
     private int CountPlayerEvents(Match match, string playerName, string eventType)
     {
         int count = 0;
@@ -334,7 +346,6 @@ public class MainViewModel : INotifyPropertyChanged
         return count;
     }
 
-
     private void ShowTeam1Details()
     {
         if (SelectedTeam1 != null)
@@ -347,34 +358,12 @@ public class MainViewModel : INotifyPropertyChanged
             _dialogService.ShowTeamDetails(SelectedTeam2);
     }
 
-    public void ShowPlayerDetails(Player player)
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            var vm = new PlayerViewModel(player, player.GoalsScored, player.YellowCards);
-            var window = new PlayerWindow
-            {
-                DataContext = vm,
-                Owner = Application.Current.MainWindow
-            };
-            window.ShowDialog();
-        });
-    }
-
-
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    private void OnPlayerClicked(PlayerViewModel player)
-    {
-        if (player != null)
-        {
-            _dialogService.ShowPlayerDetails(player.Player);
-        }
-    }
     private void UpdateFilteredPlayers()
     {
         Team1Goalkeepers = new ObservableCollection<PlayerViewModel>(Team1Players.Where(p => p.Player.Position == "Goalie"));
@@ -387,7 +376,7 @@ public class MainViewModel : INotifyPropertyChanged
         Team2Midfielders = new ObservableCollection<PlayerViewModel>(Team2Players.Where(p => p.Player.Position == "Midfield"));
         Team2Forwards = new ObservableCollection<PlayerViewModel>(Team2Players.Where(p => p.Player.Position == "Forward"));
     }
-
+ 
 
 
 }

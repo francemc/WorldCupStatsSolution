@@ -6,6 +6,7 @@ using WorldCupStats.Data.Models;
 using WorldCupStats.Data.Services;
 using WorldCupStats.WpfApp.ViewModels.Helpers;
 using WorldCupStats.WpfApp.ViewModels.Models;
+using WorldCupStats.WpfApp.ViewModels.Models.WorldCupStats.WpfApp.ViewModels.Models;
 using WorldCupStats.WpfApp.Views;
 
 namespace WorldCupStats.WpfApp.ViewModels
@@ -36,10 +37,27 @@ namespace WorldCupStats.WpfApp.ViewModels
         public WindowModeOption SelectedWindowMode
         {
             get => _selectedWindowMode;
-            set { _selectedWindowMode = value; OnPropertyChanged(nameof(SelectedWindowMode)); }
+            set
+            {
+                if (_selectedWindowMode != value)
+                {
+                    if (_selectedWindowMode != null)
+                        _selectedWindowMode.IsSelected = false;
+
+                    _selectedWindowMode = value;
+
+                    if (_selectedWindowMode != null)
+                        _selectedWindowMode.IsSelected = true;
+
+                    OnPropertyChanged(nameof(SelectedWindowMode));
+                }
+            }
         }
 
+
         public ICommand SaveCommand { get; }
+
+        public ICommand CancelCommand { get; }
 
         public StartupViewModel()
         {
@@ -63,6 +81,7 @@ namespace WorldCupStats.WpfApp.ViewModels
             SelectedWindowMode = WindowModes[0];
 
             SaveCommand = new RelayCommand(SaveAndContinue);
+            CancelCommand = new RelayCommand(Cancel);
         }
 
         // Evento que notifica que se guardaron preferencias
@@ -70,18 +89,36 @@ namespace WorldCupStats.WpfApp.ViewModels
 
         private void SaveAndContinue()
         {
-            PreferencesManager.SavePreferences(SelectedLanguage.Code, SelectedGenre, SelectedWindowMode.DisplayName);
+            var result = MessageBox.Show(
+                "Do you want to save changes?",
+                "Confirm Settings",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
 
-            // Lanzar evento para avisar que ya guardó preferencias
-            PreferencesSaved?.Invoke(this, new PreferencesSavedEventArgs(SelectedGenre, SelectedWindowMode.DisplayName));
+            if (result == MessageBoxResult.Yes)
+            {
+                PreferencesManager.SavePreferences(SelectedLanguage.Code, SelectedGenre, SelectedWindowMode.DisplayName);
+
+                // Levantamos el evento PreferencesSaved para que la ventana lo propague
+                PreferencesSaved?.Invoke(this, new PreferencesSavedEventArgs(SelectedGenre, SelectedWindowMode.DisplayName));
+            }
         }
+
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-       
+
+        private void Cancel()
+        {
+            // Cerrar la ventana sin guardar
+            var window = Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.DataContext == this);
+            window?.Close();
+        }
 
     }
 }
