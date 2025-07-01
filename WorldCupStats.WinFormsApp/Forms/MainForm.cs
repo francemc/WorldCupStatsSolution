@@ -77,5 +77,24 @@ namespace WorldCupStats.WinFormsApp.Forms
                 }
             }
         }
+        private void btnRankings_Click(object sender, EventArgs e)
+        {
+            if (FavoritesManager.TryLoadFavorites(out var favoritesData))
+            {
+                if (!string.IsNullOrEmpty(favoritesData.FavoriteTeamCode))
+                {
+                    using var rankingsForm = new RankingsForm(_api, _genre, favoritesData.FavoriteTeamCode);
+                    rankingsForm.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("No favorite team selected. Please select favorites first.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("No favorites found. Please select favorites first.");
+            }
+        }
     }
 }

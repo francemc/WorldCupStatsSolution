@@ -31,6 +31,7 @@ namespace WorldCupStats.WinFormsApp.Forms
         {
             btnSettings = new Button();
             btnFavorites = new Button();
+            btnRankings = new Button();
             SuspendLayout();
             // 
             // btnSettings
@@ -53,11 +54,22 @@ namespace WorldCupStats.WinFormsApp.Forms
             btnFavorites.UseVisualStyleBackColor = true;
             btnFavorites.Click += btnFavorites_Click;
             // 
+            // btnRankings
+            // 
+            btnRankings.Location = new Point(285, 230);
+            btnRankings.Name = "btnRankings";
+            btnRankings.Size = new Size(200, 30);
+            btnRankings.TabIndex = 2;
+            btnRankings.Text = "Rankings";
+            btnRankings.UseVisualStyleBackColor = true;
+            btnRankings.Click += btnRankings_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(802, 413);
+            Controls.Add(btnRankings);
             Controls.Add(btnFavorites);
             Controls.Add(btnSettings);
             Name = "MainForm";
@@ -70,5 +82,6 @@ namespace WorldCupStats.WinFormsApp.Forms
 
         private Button btnSettings;
         private Button btnFavorites;
+        private Button btnRankings;
     }
 }
