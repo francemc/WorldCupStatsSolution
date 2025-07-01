@@ -37,4 +37,18 @@ public class DialogService : IDialogService
             window.ShowDialog();
         });
     }
+    public bool ShowStartupDialog()
+    {
+        bool? result = null;
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            var startupWindow = new StartupWindow();
+            result = startupWindow.ShowDialog();
+        });
+
+        return result ==true ;
+    }
+
+   
 }

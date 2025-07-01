@@ -20,14 +20,13 @@ namespace WorldCupStats.Data.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "WorldCupStatsApp");
-           
         }
+
         private string GetJsonPath(string genreFolder, string filename)
         {
             string currentDir = Directory.GetCurrentDirectory();
             DirectoryInfo? dir = new DirectoryInfo(currentDir);
 
-            // Buscar la carpeta raíz de la solución (ajusta si tu estructura es distinta)
             while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "WorldCupStats.Data")))
             {
                 dir = dir.Parent;
@@ -39,222 +38,126 @@ namespace WorldCupStats.Data.Services
             string jsonFolderPath = Path.Combine(dir.FullName, @"WorldCupStats.Data\Data\Json");
             return Path.Combine(jsonFolderPath, genreFolder, filename);
         }
-        public async Task<List<Team>> GetTeamsAsync(Genre genre)
-        {
-            if (_settings.UseApi)
-            {
-                try
-                {
-                    // API call
-                    var endpoint = $"{ BaseApiUrl}/{genre.ToString().ToLower()}/teams";
-                    var response = await _httpClient.GetAsync(endpoint);
-                    response.EnsureSuccessStatusCode();
 
+        private async Task<T?> TryFetchFromApi<T>(string endpoint)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(endpoint);
+                if (response.IsSuccessStatusCode)
+                {
                     var content = await response.Content.ReadAsStringAsync();
-                    var apiResults = JsonSerializer.Deserialize<List<Team>>(content, new JsonSerializerOptions
+                    return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
-
-                    if (apiResults?.Count > 0)
-                    {
-                        return apiResults;
-                    }
                 }
-                catch (HttpRequestException apiEx)
+                else
                 {
-                    // Log API failure if needed
-                    Console.WriteLine($"API request failed: {apiEx.Message}");
-                    
+                    Console.WriteLine($"API Error: {response.StatusCode} for endpoint: {endpoint}");
                 }
             }
-           
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Exception for endpoint {endpoint}: {ex.Message}");
+            }
 
-                // JSON fallback
-                try
+            return default;
+        }
+
+        private async Task<T> LoadFromJson<T>(string filePath) where T : new()
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    throw new FileNotFoundException($"JSON file not found: {filePath}");
+
+                var jsonContent = await File.ReadAllTextAsync(filePath);
+                var data = JsonSerializer.Deserialize<T>(jsonContent, new JsonSerializerOptions
                 {
-                    var genreFolder = genre == Genre.Men ? "men" : "women";
-                    var jsonPath = GetJsonPath(genreFolder, "teams.json");
+                    PropertyNameCaseInsensitive = true
+                });
 
-                if (!File.Exists(jsonPath))
-                    {
-                        throw new FileNotFoundException($"File {jsonPath} not found");
-                    }
+                return data ?? new T();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JSON fallback failed for {filePath}: {ex.Message}");
+                return new T();
+            }
+        }
 
-                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                    return JsonSerializer.Deserialize<List<Team>>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }) ?? new List<Team>();
-                }
-                catch (Exception jsonEx)
-                {
-                    Console.WriteLine($"JSON fallback failed: {jsonEx.Message}");
-                    return new List<Team>();
-                }
-            
+        public async Task<List<Team>> GetTeamsAsync(Genre genre)
+        {
+            List<Team>? apiResults = null;
+
+            if (_settings.UseApi)
+            {
+                var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/teams";
+                apiResults = await TryFetchFromApi<List<Team>>(endpoint);
+            }
+
+            if (apiResults != null && apiResults.Count > 0)
+                return apiResults;
+
+            var genreFolder = genre == Genre.Men ? "men" : "women";
+            var jsonPath = GetJsonPath(genreFolder, "teams.json");
+            return await LoadFromJson<List<Team>>(jsonPath);
         }
 
         public async Task<List<Match>> GetMatchesAsync(Genre genre)
         {
-            if( _settings.UseApi)
+            List<Match>? apiResults = null;
+
+            if (_settings.UseApi)
             {
-                try
-                {
-                    // API call
-                    var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/matches";
-                    var response = await _httpClient.GetAsync(endpoint);
-                    response.EnsureSuccessStatusCode();
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    var apiMatches = JsonSerializer.Deserialize<List<Match>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (apiMatches?.Count > 0)
-                    {
-                        return apiMatches;
-                    }
-                }
-                catch (HttpRequestException apiEx)
-                {
-                    Console.WriteLine($"API request failed: {apiEx.Message}");
-                }
+                var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/matches";
+                apiResults = await TryFetchFromApi<List<Match>>(endpoint);
             }
 
-            // JSON fallback
-            try
-            {
-                var genreFolder = genre == Genre.Men ? "men" : "women";
-                var jsonPath = GetJsonPath(genreFolder, "matches.json");
+            if (apiResults != null && apiResults.Count > 0)
+                return apiResults;
 
-                if (!File.Exists(jsonPath))
-                    throw new FileNotFoundException($"File {jsonPath} not found");
-
-                var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                return JsonSerializer.Deserialize<List<Match>>(jsonContent,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                       ?? new List<Match>();
-            }
-            catch (Exception jsonEx)
-            {
-                Console.WriteLine($"JSON fallback failed: {jsonEx.Message}");
-                return new List<Match>();
-            }
+            var genreFolder = genre == Genre.Men ? "men" : "women";
+            var jsonPath = GetJsonPath(genreFolder, "matches.json");
+            return await LoadFromJson<List<Match>>(jsonPath);
         }
 
         public async Task<List<Match>> GetMatchesByCountryAsync(Genre genre, string fifaCode)
         {
-            if (_settings.UseApi)
-            {
-                try
-                {
-                    // API call
-                    var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/matches/country?fifa_code={fifaCode}";
-                    var response = await _httpClient.GetAsync(endpoint);
-                    response.EnsureSuccessStatusCode();
+            var allMatches = await GetMatchesAsync(genre);
 
-                    var content = await response.Content.ReadAsStringAsync();
-                    var apiMatches = JsonSerializer.Deserialize<List<Match>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (apiMatches?.Count > 0)
-                    {
-                        return apiMatches;
-                    }
-                }
-                catch (HttpRequestException apiEx)
-                {
-                    Console.WriteLine($"API request failed: {apiEx.Message}");
-                }
-            }
-
-            // JSON fallback - Filter from all matches
-            try
-            {
-                var allMatches = await GetMatchesAsync(genre);
-                return allMatches.Where(m =>
+            return allMatches
+                .Where(m =>
                     m.HomeTeam?.Code?.Equals(fifaCode, StringComparison.OrdinalIgnoreCase) == true ||
                     m.AwayTeam?.Code?.Equals(fifaCode, StringComparison.OrdinalIgnoreCase) == true)
-                    .ToList();
-            }
-            catch (Exception jsonEx)
-            {
-                Console.WriteLine($"JSON fallback failed: {jsonEx.Message}");
-                return new List<Match>();
-            }
+                .ToList();
         }
-        // mirar
+
         public async Task<List<TeamResult>> GetTeamsResultsAsync(Genre genre)
         {
+            List<TeamResult>? apiResults = null;
+
             if (_settings.UseApi)
             {
-                try
-                {
-                    // API call
-                    var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/teams/results";
-                    var response = await _httpClient.GetAsync(endpoint);
-                    response.EnsureSuccessStatusCode();
-
-                    var content = await response.Content.ReadAsStringAsync();
-                    var apiResults = JsonSerializer.Deserialize<List<TeamResult>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (apiResults?.Count > 0)
-                    {
-                        return apiResults;
-                    }
-                }
-                catch (HttpRequestException apiEx)
-                {
-                    // Log API failure if needed
-                    Console.WriteLine($"API request failed: {apiEx.Message}");
-
-                }
+                var endpoint = $"{BaseApiUrl}/{genre.ToString().ToLower()}/teams/results";
+                apiResults = await TryFetchFromApi<List<TeamResult>>(endpoint);
             }
 
+            if (apiResults != null && apiResults.Count > 0)
+                return apiResults;
 
-            // JSON fallback
-            try
-            {
-                var genreFolder = genre == Genre.Men ? "men" : "women";
-                var jsonPath = GetJsonPath(genreFolder, "results.json");
-
-                if (!File.Exists(jsonPath))
-                {
-                    throw new FileNotFoundException($"File {jsonPath} not found");
-                }
-
-                var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                return JsonSerializer.Deserialize<List<TeamResult>>(jsonContent, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new List<TeamResult>();
-            }
-            catch (Exception jsonEx)
-            {
-                Console.WriteLine($"JSON fallback failed: {jsonEx.Message}");
-                return new List<TeamResult>();
-            }
-
+            var genreFolder = genre == Genre.Men ? "men" : "women";
+            var jsonPath = GetJsonPath(genreFolder, "results.json");
+            return await LoadFromJson<List<TeamResult>>(jsonPath);
         }
+
         public async Task<TeamResult?> GetTeamResultAsync(Genre genre, string fifaCode)
         {
-            try
-            {
-                var results = await GetTeamsResultsAsync(genre);
-                return results.FirstOrDefault(r =>
-                    r.FifaCode?.Equals(fifaCode, StringComparison.OrdinalIgnoreCase) == true);
-            }
-            catch
-            {
-                return null;
-            }
+            var results = await GetTeamsResultsAsync(genre);
+
+            return results.FirstOrDefault(r =>
+                r.FifaCode?.Equals(fifaCode, StringComparison.OrdinalIgnoreCase) == true);
         }
 
         public async Task<List<Player>> GetPlayersByTeamAsync(Genre genre, string fifaCode)
@@ -264,19 +167,22 @@ namespace WorldCupStats.Data.Services
             if (matches == null || matches.Count == 0)
                 return new List<Player>();
 
-            var firstMatch = matches.OrderBy(m => m.DateTime).First();
-
-            List<Player> players;
+            var firstMatch = matches.OrderBy(m => m.DateTime).FirstOrDefault();
+            if (firstMatch == null)
+                return new List<Player>();
 
             if (firstMatch.HomeTeam.Code.Equals(fifaCode, StringComparison.OrdinalIgnoreCase))
-                players = firstMatch.HomeTeamDetail.StartingEleven.Concat(firstMatch.HomeTeamDetail.Substitutes).ToList();
+            {
+                return firstMatch.HomeTeamDetail.StartingEleven.Concat(firstMatch.HomeTeamDetail.Substitutes).ToList();
+            }
             else if (firstMatch.AwayTeam.Code.Equals(fifaCode, StringComparison.OrdinalIgnoreCase))
-                players = firstMatch.AwayTeamDetail.StartingEleven.Concat(firstMatch.AwayTeamDetail.Substitutes).ToList();
-            else
-                players = new List<Player>();
+            {
+                return firstMatch.AwayTeamDetail.StartingEleven.Concat(firstMatch.AwayTeamDetail.Substitutes).ToList();
+            }
 
-            return players;
+            return new List<Player>();
         }
+
         public async Task<List<Team>> GetTeamsWithResultsAsync(Genre genre)
         {
             var teams = await GetTeamsAsync(genre);
@@ -294,13 +200,11 @@ namespace WorldCupStats.Data.Services
                     team.GoalsFor = result.GoalsFor;
                     team.GoalsAgainst = result.GoalsAgainst;
                     team.GoalDifferential = result.GoalDifferential;
-                    team.Points = (result.Wins * 3) + (result.Draws);  // Puedes calcular los puntos si quieres
+                    team.Points = (result.Wins * 3) + (result.Draws);
                 }
             }
 
             return teams;
         }
-
-
     }
 }

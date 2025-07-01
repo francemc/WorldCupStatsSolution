@@ -11,5 +11,7 @@ namespace WorldCupStats.WpfApp
     {
         void ShowTeamDetails(Team team);
         void ShowPlayerDetails(Player player);
+
+        bool ShowStartupDialog(); 
     }
 }

@@ -25,48 +25,26 @@ namespace WorldCupStats.WpfApp.Views
     /// 
     public partial class StartupWindow : Window
     {
-        public event EventHandler<PreferencesSavedEventArgs>? PreferencesSaved;
+        public event EventHandler<PreferencesSavedEventArgs> PreferencesSaved;
+
         private bool _isSaveInitiated = false;
 
         public StartupWindow()
         {
             InitializeComponent();
             var vm = new StartupViewModel();
-            vm.PreferencesSaved += (s, e) => PreferencesSaved?.Invoke(this, e);
+            vm.PreferencesSaved += Vm_PreferencesSaved;
             DataContext = vm;
-            // Suscribirse al evento para actuar localmente
-            this.PreferencesSaved += StartupWindow_PreferencesSaved;
-
-            this.Closing += StartupWindow_Closing;
         }
 
-
-
-        private void StartupWindow_PreferencesSaved(object? sender, PreferencesSavedEventArgs e)
+        private void Vm_PreferencesSaved(object? sender, PreferencesSavedEventArgs e)
         {
-            _isSaveInitiated = true;  // Para no preguntar al cerrar
-            this.Close();
-        }
-        public void MarkSaveInitiated()
-        {
-            _isSaveInitiated = true;
-        }
-
-        private void StartupWindow_Closing(object sender, CancelEventArgs e)
-        {
-            if (!_isSaveInitiated)
+            PreferencesSaved?.Invoke(this, e);
+            Dispatcher.Invoke(() =>
             {
-                var result = MessageBox.Show(
-                    "Do you really want to close the application?",
-                    "Confirm Close",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes)
-                {
-                    e.Cancel = true;
-                }
-            }
+                DialogResult = true;
+                this.Close();
+            });
         }
 
     }

@@ -11,7 +11,7 @@ namespace WorldCupStats.Data.Services
         // Define default values here
         public static readonly string DefaultLanguage = "en";
         public static readonly Genre DefaultGenre = Genre.Men;
-        public static readonly string DefaultSize = "500,500";
+        public static readonly string DefaultSize = "Fullscreen";
 
         public static bool TryLoadPreferences(out string language, out Genre genre, out string size)
         {

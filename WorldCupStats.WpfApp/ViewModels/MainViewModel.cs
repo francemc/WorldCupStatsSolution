@@ -13,6 +13,7 @@ using WorldCupStats.WpfApp.ViewModels;
 using WorldCupStats.WpfApp.Views;
 using static WorldCupStats.Data.Services.FavoritesManager;
 using WorldCupStats.WpfApp;
+using System.Data.Common;
 
 public class MainViewModel : INotifyPropertyChanged
 {
@@ -204,6 +205,11 @@ public class MainViewModel : INotifyPropertyChanged
     // Comandos para abrir ventana de detalles con animación (simplificada aquí)
     public ICommand ShowTeam1DetailsCommand { get; }
     public ICommand ShowTeam2DetailsCommand { get; }
+    public ICommand PlayerClickCommand { get; }
+
+    public ICommand OpenSettingsCommand { get; }
+
+    public event EventHandler? OnPreferencesUpdated;
 
     public MainViewModel(ApiService apiService, Genre selectedGenre, IDialogService dialogService)
     {
@@ -213,11 +219,42 @@ public class MainViewModel : INotifyPropertyChanged
 
         ShowTeam1DetailsCommand = new RelayCommand(ShowTeam1Details, () => SelectedTeam1 != null);
         ShowTeam2DetailsCommand = new RelayCommand(ShowTeam2Details, () => SelectedTeam2 != null);
+        OpenSettingsCommand = new RelayCommand(OpenSettings);
+        PlayerClickCommand = new RelayCommand<PlayerViewModel>(OnPlayerClicked);
 
-        LoadTeamsAsync();
+        _ = SafeLoadTeamsAsync();
+       
     }
 
-    private async void LoadTeamsAsync()
+    private void OnPlayerClicked(PlayerViewModel player)
+    {
+        if (player == null) return;
+        _dialogService.ShowPlayerDetails(player.Player);
+    }
+
+
+    private async Task SafeLoadTeamsAsync()
+    {
+        try
+        {
+            await LoadTeamsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error en SafeLoadTeamsAsync: {ex.Message}");
+            // Puedes aquí incluso mostrar un diálogo amigable si quieres
+        }
+    }
+    private void OpenSettings()
+    {
+        bool? result = _dialogService.ShowStartupDialog();
+
+        if (result == true)
+        {
+            OnPreferencesUpdated?.Invoke(this, EventArgs.Empty);
+        }
+    }
+    private async Task LoadTeamsAsync()
     {
         Teams.Clear();
         var teams = await _apiService.GetTeamsWithResultsAsync(_selectedGenre);
@@ -239,9 +276,10 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         SelectedTeam1 = Teams[0];
+        
     }
 
-    private async void LoadOpponentsAsync()
+    private async Task LoadOpponentsAsync()
     {
         OpponentTeams.Clear();
 
@@ -261,7 +299,7 @@ public class MainViewModel : INotifyPropertyChanged
         if (OpponentTeams.Count > 0)
             SelectedTeam2 = OpponentTeams[0];
     }
-    private async void LoadMatchResultAsync()
+    private async Task LoadMatchResultAsync()
     {
         if (SelectedTeam1 == null || SelectedTeam2 == null) return;
 

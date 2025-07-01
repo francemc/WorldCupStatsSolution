@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WorldCupStats.Data.Models;
 using WorldCupStats.Data.Services;
+using WorldCupStats.WpfApp.ViewModels.Helpers;
 
 namespace WorldCupStats.WpfApp.Views
 {
@@ -21,26 +22,31 @@ namespace WorldCupStats.WpfApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(MainViewModel viewModel)
+        private readonly IDialogService _dialogService;
+        public event EventHandler OnPreferencesUpdated;
+
+        public MainWindow(MainViewModel viewModel, IDialogService dialogService)
         {
             InitializeComponent();
             DataContext = viewModel;
-        }
-        private void OpenSettings_Click(object sender, RoutedEventArgs e)
-        {
-            // Abrir StartupWindow
-            var startupWindow = new StartupWindow();
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
-            // Suscribirse al evento PreferencesSaved para recibir configuración y aplicar cambios si quieres
-
-            startupWindow.Show();
-
-            // Cerrar esta ventana (MainWindow)
-            this.Close();
         }
 
         
+        private void OpenSettings()
+        {
+            bool? result = _dialogService.ShowStartupDialog();
 
+            if (result == true)
+            {
+                OnPreferencesUpdated?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        private void OpenSettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenSettings();
+        }
     }
-
 }
+

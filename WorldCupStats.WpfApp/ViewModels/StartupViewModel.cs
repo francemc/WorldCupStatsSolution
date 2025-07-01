@@ -75,6 +75,10 @@ namespace WorldCupStats.WpfApp.ViewModels
                 new WindowModeOption("1280x720", WindowMode.Windowed720),
                 new WindowModeOption("1920x1080", WindowMode.Windowed1080)
             };
+            foreach (var mode in WindowModes)
+            {
+                mode.PropertyChanged += WindowMode_PropertyChanged;
+            }
 
             SelectedLanguage = AvailableLanguages[0];
             SelectedGenre = Genre.Men;
@@ -86,7 +90,17 @@ namespace WorldCupStats.WpfApp.ViewModels
 
         // Evento que notifica que se guardaron preferencias
         public event EventHandler<PreferencesSavedEventArgs>? PreferencesSaved;
-
+        private void WindowMode_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(WindowModeOption.IsSelected))
+            {
+                var changedMode = sender as WindowModeOption;
+                if (changedMode != null && changedMode.IsSelected && changedMode != SelectedWindowMode)
+                {
+                    SelectedWindowMode = changedMode;
+                }
+            }
+        }
         private void SaveAndContinue()
         {
             var result = MessageBox.Show(
@@ -99,10 +113,15 @@ namespace WorldCupStats.WpfApp.ViewModels
             {
                 PreferencesManager.SavePreferences(SelectedLanguage.Code, SelectedGenre, SelectedWindowMode.DisplayName);
 
-                // Levantamos el evento PreferencesSaved para que la ventana lo propague
+                // Levantar evento
                 PreferencesSaved?.Invoke(this, new PreferencesSavedEventArgs(SelectedGenre, SelectedWindowMode.DisplayName));
+
+                // Cerrar ventana y devolver DialogResult true
+               
+                
             }
         }
+
 
 
 

@@ -72,7 +72,7 @@
         </Grid.RowDefinitions>
 
         <Button Content="Settings" Grid.Row="0" HorizontalAlignment="Left" Margin="10"
-            Click="OpenSettings_Click"/>
+            Command="{Binding OpenSettingsCommand}"/>
 
 
         <!-- Team Selection Section -->
@@ -94,9 +94,9 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding Flag}" Width="24" Height="16" Margin="0,0,5,0"/>
+                                   
                                     <TextBlock>
-                                        <Run Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Country}" FontWeight="SemiBold"/>
                                         <Run Text=" (" Foreground="#666666"/>
                                         <Run Text="{Binding FifaCode}" Foreground="#666666"/>
                                         <Run Text=")" Foreground="#666666"/>
@@ -142,9 +142,9 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="{Binding Flag}" Width="24" Height="16" Margin="0,0,5,0"/>
+                                   
                                     <TextBlock>
-                                        <Run Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Country}" FontWeight="SemiBold"/>
                                         <Run Text=" (" Foreground="#666666"/>
                                         <Run Text="{Binding FifaCode}" Foreground="#666666"/>
                                         <Run Text=")" Foreground="#666666"/>
@@ -177,7 +177,7 @@
         Team2Defenders="{Binding Team2Defenders}"
         Team2Midfielders="{Binding Team2Midfielders}"
         Team2Forwards="{Binding Team2Forwards}"
-        PlayerClickCommand="{Binding PlayerClickedCommand}"
+        
        Grid.ColumnSpan="2"
         HorizontalAlignment="Stretch"
        VerticalAlignment="Stretch"
